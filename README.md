@@ -11,3 +11,5 @@
 ## Running
 Simply run `just bootstrap `
 
+## Resources
+https://github.com/taskctl/taskctl

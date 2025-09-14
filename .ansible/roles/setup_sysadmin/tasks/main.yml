@@ -4,6 +4,7 @@
     state: present
     shell: /bin/bash
     create_home: true
+    password: "{{ sysadmin_password_hash }}"
 
 - name: Add SysAdmin user to sudo group
   ansible.builtin.user:
