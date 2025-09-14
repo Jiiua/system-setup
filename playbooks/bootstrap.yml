@@ -1,0 +1,30 @@
+- name: Bootstrap System Admin user if missing
+  hosts: all
+
+  become: true
+  gather_facts: false
+
+  vars:
+    ansible_user: root
+    ansible_python_interpreter: auto_silent
+
+  vars_prompt:
+    - name: "ansible_ssh_user"
+      prompt: "Enter SSH user (if sysadmin is not configured, enter 'root' first)"
+      private: no
+
+    - name: "ansible_password"
+      prompt: "Enter SSH password for the SSH user above"
+      private: yes
+
+  pre_tasks:
+    - name: Check if fallback user exists
+      ansible.builtin.getent:
+        database: passwd
+        key: "{{ fallback_user }}"
+      register: sysadmin_user_check
+      ignore_errors: true
+
+  roles:
+    - role: setup_sysadmin
+      when: sysadmin_user_check.failed or not sysadmin_user_check.found

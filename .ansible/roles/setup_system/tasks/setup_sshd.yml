@@ -1,0 +1,56 @@
+- name: Ensure PasswordAuthentication is false
+  ansible.builtin.lineinfile:
+    path: "{{ system_ssh_config_file }}"
+    regexp: "^#?PasswordAuthentication"
+    line: "PasswordAuthentication no"
+    state: present
+    backrefs: true
+
+- name: Ensure PermitRootLogin is false
+  ansible.builtin.lineinfile:
+    path: "{{ system_ssh_config_file }}"
+    regexp: "^#?PermitRootLogin"
+    line: "PermitRootLogin no"
+    state: present
+    backrefs: true
+
+- name: Ensure PubkeyAuthentication is true
+  ansible.builtin.lineinfile:
+    path: "{{ system_ssh_config_file }}"
+    regexp: "^#?PubkeyAuthentication"
+    line: "PubkeyAuthentication yes"
+    state: present
+    backrefs: true
+
+- name: Ensure ChallengeResponseAuthentication and AllowGroups is created
+  ansible.builtin.blockinfile:
+    path: "{{ system_ssh_config_file }}"
+    block: |
+      ChallengeResponseAuthentication no
+      AllowGroups {{ sysadmin_groups }}
+    insertafter: EOF
+    create: true
+
+- name: Ensure ChallengeResponseAuthentication is false
+  ansible.builtin.lineinfile:
+    path: "{{ system_ssh_config_file }}"
+    regexp: "^#?ChallengeResponseAuthentication"
+    line: "ChallengeResponseAuthentication no"
+    state: present
+    backrefs: true
+    create: true
+
+- name: Ensure AllowGroups includes "{{ sysadmin_groups }}"
+  ansible.builtin.lineinfile:
+    path: "{{ system_ssh_config_file }}"
+    regexp: "^#?AllowGroups"
+    line: "AllowGroups {{ sysadmin_groups }}"
+    state: present
+    backrefs: true
+    insertafter: EOF
+    create: true
+
+- name: Restart SSH service
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted

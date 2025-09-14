@@ -1,0 +1,20 @@
+- name: Ensure SSH user group ("{{ sysadmin_groups }}") exists
+  ansible.builtin.group:
+    name: "{{ sysadmin_groups }}"
+    state: present
+
+- name: Ensure each user exists and has their SSH key
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    group: "{{ sysadmin_groups }}"
+    shell: /bin/bash
+    create_home: true
+    state: present
+  with_items: "{{ system_ssh_users }}"
+
+- name: Ensure each user has their SSH key
+  ansible.posix.authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ item.ssh_key }}"
+    state: present
+  with_items: "{{ system_ssh_users }}"

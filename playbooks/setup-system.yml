@@ -1,0 +1,16 @@
+- name: Create fallback user and configure SSH
+  hosts: all
+
+  become: true
+
+  vars:
+    ansible_user: "{{ sysadmin_user }}"
+    ansible_python_interpreter: auto_silent
+
+  # vars_prompt:
+  #  - name: ansible_become_password
+  #    prompt: "Enter sudo password for sysadmin"
+  #    private: yes
+
+  roles:
+    - { role: setup_system }

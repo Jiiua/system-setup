@@ -1,0 +1,45 @@
+- name: Ensure the SysAdmin user exists
+  ansible.builtin.user:
+    name: "{{ sysadmin_user }}"
+    state: present
+    shell: /bin/bash
+    create_home: true
+
+- name: Add SysAdmin user to sudo group
+  ansible.builtin.user:
+    name: "{{ sysadmin_user }}"
+    groups: sudo
+    append: true
+
+- name: Ensure SysAdmin user SSH directory exists
+  ansible.builtin.file:
+    path: "/home/{{ sysadmin_user }}/.ssh/"
+    state: directory
+    mode: '0700'
+    owner: "{{ sysadmin_user }}"
+    group: "{{ sysadmin_user }}"
+
+# - name: Debug SSH public key file path
+#  ansible.builtin.debug:
+#    msg: "Public key path is: {{ sysadmin_ssh_key }}"
+
+- name: Add SSH public key for SysAdmin user
+  ansible.builtin.copy:
+    src: "{{ sysadmin_ssh_key_path }}"
+    dest: "/home/{{ sysadmin_user }}/.ssh/authorized_keys"
+    mode: '0600'
+    owner: "{{ sysadmin_user }}"
+    group: "{{ sysadmin_user }}"
+
+- name: Allow SysAdmin user to sudo without password
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ sysadmin_user }}"
+    content: "{{ sysadmin_user }} ALL=(ALL) NOPASSWD: ALL"
+    owner: root
+    group: root
+    mode: '0440'
+
+# - name: Add SSH private key to the agent on localhost (if not added yet for this session)
+#  ansible.builtin.command: ssh-add {{ sysadmin_ssh_key_path }}
+#  delegate_to: localhost
+#  run_once: true

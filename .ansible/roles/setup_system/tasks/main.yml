@@ -1,0 +1,5 @@
+- name: Configure SSH
+  ansible.builtin.include_tasks: setup_sshd.yml
+
+- name: Configure Users
+  ansible.builtin.include_tasks: setup_users.yml
